@@ -122,11 +122,27 @@ function run_terraform_apply() {
     }
   }
   ' > backend.tf
-
-  # Restore backend.tf, initialize and run terraform apply
+  
+  # Move the JSON file to the module directory, restore backend.tf, initialize and run terraform plan
+  mv artifacts/$(basename "$JSON_FILE") iac/${MODULE_PATH}/$(basename "$JSON_FILE")
   cp backend.tf iac/${MODULE_PATH}/
   cd iac/${MODULE_PATH}
   terraform init -upgrade
+
+  # Copy content from the module's main.tf to the current main.tf
+  TEMPLATE_DIR=$(echo "$JSON_FILE" | sed -E 's|^iac/([^/]+)|\1/templates|; s|/[^/]+\.json$||')
+  MODULE_MAIN_TF=".terraform/modules/${TEMPLATE_DIR}/main.tf"
+  CURRENT_MAIN_TF="main.tf"
+  echo "Copying content from $MODULE_MAIN_TF to $CURRENT_MAIN_TF"
+  sed -i '/^}/d' $CURRENT_MAIN_TF
+  awk '/source/ {flag=1; next} flag' "$MODULE_MAIN_TF" >> "$CURRENT_MAIN_TF"
+
+  # Copy the variables.tf and outputs.tf from the module to the current directory
+  MODULE_PATH=$(echo "$MODULE_PATH" | sed 's|/|/templates/|')
+  MODULE_TF=".terraform/modules/${MODULE_PATH}"
+  cp "$MODULE_TF"/variables.tf .
+  cp "$MODULE_TF"/outputs.tf .
+  
   terraform apply --auto-approve -var-file="$(basename "$JSON_FILE")"
 }
 
