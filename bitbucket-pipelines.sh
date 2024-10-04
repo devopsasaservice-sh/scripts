@@ -68,7 +68,7 @@ function run_terraform_plan() {
   echo '
   terraform {
     cloud {
-      organization = "takeachef"
+      organization = "'"$TERRAFORM_ORGANIZATION"'"
       workspaces {
         name = "'"$WORKSPACE_NAME"'"
       }
@@ -115,7 +115,7 @@ function run_terraform_apply() {
   echo '
   terraform {
     cloud {
-      organization = "takeachef"
+      organization = "'"$TERRAFORM_ORGANIZATION"'"
       workspaces {
         name = "'"$WORKSPACE_NAME"'"
       }
