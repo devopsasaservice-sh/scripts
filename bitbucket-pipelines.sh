@@ -100,7 +100,7 @@ function run_terraform_plan() {
   pip install awscli --upgrade --user
 
   if [ -n "$AWS_ROLE_NAME" ]; then
-    sed -i "/region = var.region/a\ \ assume_role {\n\ \ \ \ role_arn = \"$AWS_ROLE_NAME\"\n\ \ }" terraform.tf
+    sed -i "/region = var.region/a\ \ assume_role {\n\ \ \ \ role_arn = \"$AWS_ROLE_NAME\"\n\ \ }" .terraform/modules/${TEMPLATE_DIR}/terraform.tf
   fi
   
   ~/.local/bin/aws --version
