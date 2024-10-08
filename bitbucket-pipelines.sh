@@ -108,7 +108,8 @@ function run_terraform_plan() {
   export PATH=~/.local/bin:$PATH
 
   aws --version
-  
+
+  terraform init -upgrade
   terraform plan -var-file="$(basename "$JSON_FILE")"
 }
 
