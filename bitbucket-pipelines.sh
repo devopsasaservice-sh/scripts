@@ -96,6 +96,16 @@ function run_terraform_plan() {
   cp "$MODULE_TF"/variables.tf .
   cp "$MODULE_TF"/outputs.tf .
 
+# Create terraform.tf for the module
+  echo '
+  provider "aws" {
+    assume_role {
+      role_arn     = "${AWS_ROLE_NAME}"
+      session_name = "SESSION_NAME"
+      external_id  = "EXTERNAL_ID"
+    }
+  }
+  ' > terraform.tf
   terraform plan -var-file="$(basename "$JSON_FILE")"
 }
 
