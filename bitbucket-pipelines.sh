@@ -113,7 +113,7 @@ function run_terraform_plan() {
   ' .terraform/modules/${TEMPLATE_DIR}/terraform.tf
   
   terraform init -upgrade
-  terraform plan -var-file="$(basename "$JSON_FILE")"
+  #terraform plan -var-file="$(basename "$JSON_FILE")"
 }
 
 # Step 4: Run Terraform Apply
