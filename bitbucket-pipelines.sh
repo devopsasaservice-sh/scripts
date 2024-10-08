@@ -99,9 +99,9 @@ function run_terraform_plan() {
   apk add --no-cache python3 py3-pip
   pip install awscli --upgrade --user
 
-  export AWS_ROLE_ARN=${AWS_ROLE_NAME}
-  export AWS_WEB_IDENTITY_TOKEN_FILE=$(pwd)/web-identity-token
-  echo $BITBUCKET_STEP_OIDC_TOKEN > $(pwd)/web-identity-token
+  if [ -n "$AWS_ROLE_NAME" ]; then
+    sed -i "/region = var.region/a\ \ assume_role {\n\ \ \ \ role_arn = \"$AWS_ROLE_NAME\"\n\ \ }" terraform.tf
+  fi
   
   ~/.local/bin/aws --version
 
