@@ -98,22 +98,17 @@ function run_terraform_plan() {
 
   apk add --no-cache python3 py3-pip
   pip install awscli --upgrade --user
+
+  export AWS_ROLE_ARN=${AWS_ROLE_NAME}
+  export AWS_WEB_IDENTITY_TOKEN_FILE=$(pwd)/web-identity-token
+  echo $BITBUCKET_STEP_OIDC_TOKEN > $(pwd)/web-identity-token
+  
   ~/.local/bin/aws --version
 
   export PATH=~/.local/bin:$PATH
 
   aws --version
   
-  # Create terraform.tf for the module
-  echo '
-  provider "aws" {
-    assume_role {
-      role_arn     = "${AWS_ROLE_NAME}"
-      session_name = "SESSION_NAME"
-      external_id  = "EXTERNAL_ID"
-    }
-  }
-  ' > terraform.tf
   terraform plan -var-file="$(basename "$JSON_FILE")"
 }
 
