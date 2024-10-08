@@ -80,7 +80,6 @@ function run_terraform_plan() {
   mv artifacts/$(basename "$JSON_FILE") iac/${MODULE_PATH}/$(basename "$JSON_FILE")
   cp backend.tf iac/${MODULE_PATH}/
   cd iac/${MODULE_PATH}
-  terraform init -upgrade
 
   # Copy content from the module's main.tf to the current main.tf
   TEMPLATE_DIR=$(echo "$JSON_FILE" | sed -E 's|^iac/([^/]+)|\1/templates|; s|/[^/]+\.json$||')
@@ -96,19 +95,23 @@ function run_terraform_plan() {
   cp "$MODULE_TF"/variables.tf .
   cp "$MODULE_TF"/outputs.tf .
 
-  apk add --no-cache python3 py3-pip
-  pip install awscli --upgrade --user
-
-  if [ -n "$AWS_ROLE_NAME" ]; then
-    sed -i "/region = var.region/a\ \ assume_role {\n\ \ \ \ role_arn = \"$AWS_ROLE_NAME\"\n\ \ }" .terraform/modules/${TEMPLATE_DIR}/terraform.tf
-  fi
+  echo '
+  provider "aws" {
+    region = var.region
   
-  ~/.local/bin/aws --version
-
-  export PATH=~/.local/bin:$PATH
-
-  aws --version
-
+    # Condicional para incluir el bloque assume_role si var.role_arn está definido
+    assume_role {
+      role_arn = ${AWS_ROLE_NAME}
+    }
+  
+    default_tags {
+      tags = {
+        cost_center = var.cost_center
+      }
+    }
+  }
+  ' .terraform/modules/${TEMPLATE_DIR}/terraform.tf
+  
   terraform init -upgrade
   terraform plan -var-file="$(basename "$JSON_FILE")"
 }
