@@ -96,7 +96,15 @@ function run_terraform_plan() {
   cp "$MODULE_TF"/variables.tf .
   cp "$MODULE_TF"/outputs.tf .
 
-# Create terraform.tf for the module
+  apk add --no-cache python3 py3-pip
+  pip install awscli --upgrade --user
+  ~/.local/bin/aws --version
+
+  export PATH=~/.local/bin:$PATH
+
+  aws --version
+  
+  # Create terraform.tf for the module
   echo '
   provider "aws" {
     assume_role {
